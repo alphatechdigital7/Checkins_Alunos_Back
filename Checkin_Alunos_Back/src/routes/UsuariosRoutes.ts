@@ -11,8 +11,9 @@ const usuariosControllers = new UsuariosControllers();
 usuariosRouter.use(languageMiddleware); // Usando o middleware de idioma
 
 //Rota para criar um novo usuário
-usuariosRouter.post("/novo_usuario", async (req: Request, res: Response) => {
-    await usuariosControllers.create(req, res);
+usuariosRouter.post("/novo_usuario", (req: Request, res: Response) => {
+    console.log('[ROTA] Dados recebidos:', req.body);
+    return (usuariosControllers.create as any)(req, res);
 });
 
 // Rota para listar todos os registros em usuários

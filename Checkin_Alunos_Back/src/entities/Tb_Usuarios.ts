@@ -22,17 +22,18 @@ export class Tb_Usuarios{
     senha!: string;
 
     //Coluna Data da criação 
-    @CreateDateColumn({name: "Created_at", type: "timestamp", default: () => 'CURRENT_TIMESTAMP'})
+    @CreateDateColumn({name: "created_at", type: "timestamp", default: () => 'CURRENT_TIMESTAMP'})
     created_at!: Date;
 
     // Coluna Data da atualização
     @UpdateDateColumn({name: "updated_at", type: "timestamp", default: () => 'CURRENT_TIMESTAMP'})
     updated_at!: Date;
 
-    @BeforeInsert()  // Implementa hashing para a senha antes de armazená-la no banco de dados
-    async hashPassword() {
-    this.senha = await bcrypt.hash(this.senha, 10);
-    }
+    // @BeforeInsert()  // Comentado para desabilitar temporariamente o hash da senha
+    // async hashPassword() {
+    // this.senha = await bcrypt.hash(this.senha, 10);
+    // }
+
 
 
 }
