@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, BeforeInsert } from "typeorm";
+import bcrypt from "bcrypt";
+
 
 // Definição da tabela usuários
 @Entity("tb_usuarios")
@@ -26,6 +28,11 @@ export class Tb_Usuarios{
     // Coluna Data da atualização
     @UpdateDateColumn({name: "updated_at", type: "timestamp", default: () => 'CURRENT_TIMESTAMP'})
     updated_at!: Date;
+
+    @BeforeInsert()  // Implementa hashing para a senha antes de armazená-la no banco de dados
+    async hashPassword() {
+    this.senha = await bcrypt.hash(this.senha, 10);
+    }
 
 
 }

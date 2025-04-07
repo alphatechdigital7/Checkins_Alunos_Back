@@ -4,6 +4,7 @@ import { env } from "../config/env"; // Importa configurações do env.ts
 import { Tb_Checkins } from "../entities/Tb_Checkins";
 import { Tb_Alunos } from "../entities/tb_alunos";
 import { Tb_Configuracoes } from "../entities/Tb_Configuracoes";
+import { Tb_Usuarios } from "../entities/Tb_Usuarios";
 
 
 export const AppDataSource = new DataSource({
@@ -11,12 +12,12 @@ export const AppDataSource = new DataSource({
     host: env.DB_HOST,
     port: Number(env.DB_PORT),
     username: env.DB_USER,
-    password: env.DB_PASSWORD,
+    password: env.DB_PASS,
     database: env.DB_NAME,
     synchronize: false,
 
     logging: false,
-    entities:  [Tb_Alunos, Tb_Checkins, Tb_Configuracoes],
+    entities:  [Tb_Alunos, Tb_Checkins, Tb_Configuracoes, Tb_Usuarios],
 });
 
 AppDataSource.initialize()
