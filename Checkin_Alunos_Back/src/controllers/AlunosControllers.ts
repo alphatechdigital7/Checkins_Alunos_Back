@@ -34,11 +34,11 @@ export class AlunosControllers {
             return res.status(400).json({ 
                 success: false,
                 error: errorMessage,
-                mensagem: "Falha ao criar usuário",
+                mensagem: "Falha ao criar aluno",
                 detalhes: {
                     campoEmail: errorMessage.includes('Email') ? 'email inválido' : undefined,
                     camposFaltantes: errorMessage.includes('obrigatórios') 
-                        ? ['nome', 'email', 'senha'].filter(f => !req.body[f])
+                        ? ['matricula', 'nome', 'telefone', 'email', 'resp1', 'telefone_resp1', 'email_resp1'].filter(f => !req.body[f])
                         : undefined
                 }
             });
@@ -66,7 +66,7 @@ export class AlunosControllers {
 
     async getById(req: Request, res: Response): Promise<Response> {
         try {
-            const aluno = await alunosServices.findById(Number(req.params.matricula));
+            const aluno = await alunosServices.findById(String(req.params.matricula));
             if (!aluno) return res.status(404).json({ 
                 success: false,
                 error: "Aluno não encontrado" 
@@ -121,7 +121,7 @@ export class AlunosControllers {
         try {
             const dadosAtualizacao = Array.isArray(req.body) ? req.body[0] : req.body;
             
-            const aluno = await alunosServices.update(Number(req.params.matricula), dadosAtualizacao);
+            const aluno = await alunosServices.update(String(req.params.matricula), dadosAtualizacao);
             if (!aluno) return res.status(404).json({ 
                 success: false,
                 error: "Aluno não encontrado" 

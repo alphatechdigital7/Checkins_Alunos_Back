@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import express from "express";
 import cors from "cors";
 import usuariosRoutes from "./routes/UsuariosRoutes";
-import { alunosRoutes } from "./routes/AlunosRoutes";
+import alunosRoutes from "./routes/AlunosRoutes";
 import { configuracoesRoutes } from "./routes/ConfiguracoesRoutes";
 import { checkinsRoutes } from "./routes/CheckinsRoutes";
 

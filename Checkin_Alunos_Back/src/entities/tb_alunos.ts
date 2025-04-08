@@ -1,12 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn} from "typeorm";
+import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn} from "typeorm";
 import { Tb_Usuarios } from "./Tb_Usuarios";
 
 // Definição tabela alunos
 
 @Entity ("tb_alunos")
 export class Tb_Alunos {
-    @PrimaryGeneratedColumn({name: "matricula", type: "integer"})
-    matricula!: number;
+    @PrimaryColumn({name: "matricula", type: "bigint"})
+    matricula!: string;
 
     @Column({name: "nome", type: "character varying"})
     nome!: string;

@@ -11,6 +11,9 @@ export class AlunosServices {
             console.log('[SERVICE] Iniciando criação de aluno com dados:', data);
 
             // Valida campos obrigatórios
+            if (!data.matricula) {
+                throw new Error('Matricula do aluno é obrigatório');
+            }
             if (!data.nome?.trim()) {
                 throw new Error('Nome do aluno é obrigatório');
             }
@@ -83,7 +86,7 @@ export class AlunosServices {
         return await this.alunosRepository.find();
     }
 
-    async findById(matricula: number): Promise<Tb_Alunos | null> {
+    async findById(matricula: string): Promise<Tb_Alunos | null> {
         return await this.alunosRepository.findOneBy({ matricula: matricula });
     }
 
@@ -102,7 +105,7 @@ export class AlunosServices {
             .getMany();
     }
 
-    async update(matricula: number, data: Partial<Tb_Alunos>): Promise<Tb_Alunos | null> {
+    async update(matricula: string, data: Partial<Tb_Alunos>): Promise<Tb_Alunos | null> {
         const aluno = await this.findById(matricula);
         if (!aluno) return null;
 
