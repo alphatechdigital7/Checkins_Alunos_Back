@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { env } from "../config/env"; // Importa configurações do env.ts
 import { Tb_Checkins } from "../entities/Tb_Checkins";
-import { Tb_Alunos } from "../entities/tb_alunos";
+import { Tb_Alunos } from "../entities/Tb_Alunos";
 import { Tb_Configuracoes } from "../entities/Tb_Configuracoes";
 import { Tb_Usuarios } from "../entities/Tb_Usuarios";
 

@@ -3,7 +3,7 @@ import { Tb_Usuarios } from "./Tb_Usuarios";
 
 // Definição tabela alunos
 
-@Entity ("alunos")
+@Entity ("tb_alunos")
 export class Tb_Alunos {
     @PrimaryGeneratedColumn({name: "matricula", type: "integer"})
     matricula!: number;

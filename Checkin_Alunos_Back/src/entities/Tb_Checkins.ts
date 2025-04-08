@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, JoinColumn, ManyToOne } from "typeorm";
-import { Tb_Alunos } from "./tb_alunos";
+import { Tb_Alunos } from "./Tb_Alunos";
 
 //Definição da tabela checkins
 
