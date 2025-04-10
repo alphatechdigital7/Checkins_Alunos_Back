@@ -41,8 +41,14 @@ export class AlunosServices {
             if (!data.email_resp2?.trim()) {
                 throw new Error('Email do Responsável 2 é obrigatório');
             }
-            if (typeof data.usuario_id !== 'number' || isNaN(data.usuario_id)) {
+            if (!data.usuario_id) {
+                throw new Error('Usuário associado é obrigatório');
+            }
+            if (typeof data.usuario_id === 'object' && !data.usuario_id.id_usuarios) {
                 throw new Error('ID do usuário é obrigatório');
+            }
+            if (typeof data.usuario_id === 'number' && isNaN(data.usuario_id)) {
+                throw new Error('ID do usuário inválido');
             }
 
             // Normaliza email
@@ -62,6 +68,7 @@ export class AlunosServices {
 
             // Cria usuário
             console.log('[SERVICE] Criando novo aluno...');
+            // Mantém a estrutura original mas garante o email normalizado
             const aluno = this.alunosRepository.create({
                 ...data,
                 email: emailNormalizado
@@ -100,8 +107,8 @@ export class AlunosServices {
     async findByResponsavel(nomeResponsavel: string): Promise<Tb_Alunos[]> {
         return await this.alunosRepository
             .createQueryBuilder('aluno')
-            .where('aluno.resp1 ILIKE :nomeResponsavel', { nomeResponsavel: `%${nomeResponsavel}%` })
-            .orWhere('aluno.resp2 ILIKE :nomeResponsavel', { nomeResponsavel: `%${nomeResponsavel}%` })
+            .where('aluno.resp1 ILIKE :nome', { nome: `%${nomeResponsavel}%` })
+            .orWhere('aluno.resp2 ILIKE :nome', { nome: `%${nomeResponsavel}%` })
             .getMany();
     }
 

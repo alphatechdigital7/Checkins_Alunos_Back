@@ -46,4 +46,34 @@ alunosRouter.delete("/:matricula", async (req: Request, res: Response) => {
     await alunosControllers.delete(req, res);
 });
 
+// Rota para importar alunos de planilha Excel
+import multer from 'multer';
+const upload = multer({ 
+    dest: 'uploads/',
+    fileFilter: (req, file, cb) => {
+        const isExcel = file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
+                      file.originalname.endsWith('.xlsx');
+        const isCsv = file.mimetype === 'text/csv' || 
+                     file.originalname.endsWith('.csv');
+        
+        if (isExcel || isCsv) {
+            cb(null, true);
+        } else {
+            cb(new Error('Apenas arquivos .xlsx ou .csv são permitidos'));
+        }
+    }
+});
+alunosRouter.post("/import", upload.single('file'), async (req: Request, res: Response) => {
+    try {
+        await alunosControllers.importFromExcel(req, res);
+    } catch (error: unknown) {
+        console.error('Erro na rota de importação:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+        res.status(500).json({
+            success: false,
+            error: errorMessage
+        });
+    }
+});
+
 export default alunosRouter;

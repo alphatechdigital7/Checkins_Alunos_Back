@@ -1,4 +1,9 @@
 import { Request, Response } from "express";
+import fs from 'fs';
+import multer from 'multer';
+import { ExcelParser } from '../utils/excelParser';
+import { CsvParser } from '../utils/csvParser';
+import { Tb_Alunos } from "../entities/Tb_Alunos";
 import { AlunosServices } from "../services/AlunosServices";
 
 const alunosServices = new AlunosServices();
@@ -103,16 +108,35 @@ export class AlunosControllers {
     async getByResponsavel(req: Request, res: Response): Promise<Response> {
         try {
             const { nome } = req.query;
-            const alunos = await alunosServices.findByName(nome as string);
+            
+            if (!nome) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Parâmetro 'nome' é obrigatório"
+                });
+            }
+
+            const alunos = await alunosServices.findByResponsavel(nome as string);
+            
+            if (alunos.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    error: "Nenhum aluno encontrado para o responsável informado"
+                });
+            }
+
             return res.json({
                 success: true,
                 message: "Alunos encontrados com sucesso",
                 data: alunos
             });
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+            console.error('Erro ao buscar alunos por responsável:', errorMessage);
             return res.status(500).json({
                 success: false,
-                error: "Erro ao buscar alunos pelo Responsável"
+                error: "Erro ao buscar alunos pelo Responsável",
+                details: errorMessage
             });
         }
     }
@@ -155,6 +179,104 @@ export class AlunosControllers {
             return res.status(500).json({
                 success: false,
                 error: "Erro ao deletar Aluno"
+            });
+        }
+    }
+
+    async importFromExcel(req: Request, res: Response): Promise<Response> {
+        try {
+            if (!req.file) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Nenhum arquivo enviado"
+                });
+            }
+
+            // Verifica se é um arquivo XLSX ou CSV
+            const isExcel = req.file.mimetype.includes('spreadsheetml') || req.file.originalname.endsWith('.xlsx');
+            const isCsv = req.file.mimetype.includes('text/csv') || req.file.originalname.endsWith('.csv');
+            
+            if (!isExcel && !isCsv) {
+                fs.unlinkSync(req.file.path);
+                return res.status(400).json({
+                    success: false,
+                    error: "Apenas arquivos Excel (.xlsx) ou CSV (.csv) são permitidos"
+                });
+            }
+
+            console.log('Iniciando importação do arquivo:', req.file.originalname);
+            let alunosData;
+            try {
+                const fileContent = fs.readFileSync(req.file.path);
+                console.log('Tamanho do arquivo:', fileContent.length, 'bytes');
+                alunosData = isExcel 
+                    ? ExcelParser.parseAlunos(fileContent)
+                    : CsvParser.parseAlunos(fileContent.toString());
+                console.log('Alunos parseados:', alunosData.length);
+                
+                if (!Array.isArray(alunosData) || alunosData.length === 0) {
+                    throw new Error('O arquivo não contém dados válidos de alunos');
+                }
+            } catch (error) {
+                fs.unlinkSync(req.file.path);
+                const errorMessage = error instanceof Error ? error.message : 'Erro ao processar arquivo';
+                console.error('Erro no parser do Excel:', errorMessage);
+                return res.status(400).json({
+                    success: false,
+                    error: 'Erro ao processar arquivo Excel',
+                    details: errorMessage
+                });
+            }
+            
+            // Obtém o primeiro aluno como referência para o usuário admin
+            if (alunosData.length === 0) {
+                throw new Error('Nenhum aluno encontrado no arquivo');
+            }
+            
+            // Verifica se o usuário admin está definido corretamente
+            const usuarioAdmin = alunosData[0].usuario_id;
+            if (!usuarioAdmin || !usuarioAdmin.id_usuarios) {
+                throw new Error('Usuário admin não configurado corretamente no arquivo');
+            }
+
+            const alunosCriados = await Promise.all(
+                alunosData.map(async (data: Partial<Tb_Alunos>) => {
+                    try {
+                        // Garante que o objeto de usuário está completo
+                        if (!data.usuario_id) {
+                            data.usuario_id = usuarioAdmin;
+                        }
+                        return await alunosServices.create(data);
+                    } catch (error) {
+                        console.error('Erro ao criar aluno:', error);
+                        return null;
+                    }
+                })
+            ).then(results => results.filter(Boolean));
+
+            const totalImportados = alunosCriados.length;
+
+            fs.unlinkSync(req.file.path); // Remove o arquivo após processamento
+
+            return res.json({
+                success: true,
+                message: `${totalImportados} alunos importados com sucesso`,
+                data: alunosCriados,
+                total: totalImportados,
+                erros: alunosData.length - totalImportados
+            });
+        } catch (error) {
+            if (req.file?.path) {
+                fs.unlinkSync(req.file.path); // Remove o arquivo em caso de erro
+            }
+            
+            const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+            console.error('Erro ao importar alunos:', errorMessage);
+            
+            return res.status(500).json({
+                success: false,
+                error: "Erro ao importar alunos",
+                details: errorMessage
             });
         }
     }
