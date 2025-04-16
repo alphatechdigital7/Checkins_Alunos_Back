@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import fs from 'fs';
 import multer from 'multer';
-import { ExcelParser } from '../utils/excelParser';
 import { CsvParser } from '../utils/csvParser';
 import { Tb_Alunos } from "../entities/Tb_Alunos";
 import { AlunosServices } from "../services/AlunosServices";
@@ -183,35 +182,32 @@ export class AlunosControllers {
         }
     }
 
-    async importFromExcel(req: Request, res: Response): Promise<Response> {
+    async importFromCsv(req: Request, res: Response): Promise<Response> {
         try {
             if (!req.file) {
                 return res.status(400).json({
                     success: false,
-                    error: "Nenhum arquivo enviado"
+                    error: "Nenhum arquivo CSV enviado"
                 });
             }
 
-            // Verifica se é um arquivo XLSX ou CSV
-            const isExcel = req.file.mimetype.includes('spreadsheetml') || req.file.originalname.endsWith('.xlsx');
+            // Verifica se é um arquivo CSV
             const isCsv = req.file.mimetype.includes('text/csv') || req.file.originalname.endsWith('.csv');
             
-            if (!isExcel && !isCsv) {
+            if (!isCsv) {
                 fs.unlinkSync(req.file.path);
                 return res.status(400).json({
                     success: false,
-                    error: "Apenas arquivos Excel (.xlsx) ou CSV (.csv) são permitidos"
+                    error: "Apenas arquivos CSV (.csv) são permitidos"
                 });
             }
 
-            console.log('Iniciando importação do arquivo:', req.file.originalname);
+            console.log('Iniciando importação do arquivo CSV:', req.file.originalname);
             let alunosData;
             try {
                 const fileContent = fs.readFileSync(req.file.path);
                 console.log('Tamanho do arquivo:', fileContent.length, 'bytes');
-                alunosData = isExcel 
-                    ? ExcelParser.parseAlunos(fileContent)
-                    : CsvParser.parseAlunos(fileContent.toString());
+                alunosData = CsvParser.parseAlunos(fileContent.toString());
                 console.log('Alunos parseados:', alunosData.length);
                 
                 if (!Array.isArray(alunosData) || alunosData.length === 0) {
