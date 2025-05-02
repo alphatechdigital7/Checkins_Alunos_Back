@@ -8,7 +8,15 @@ import { checkinsRoutes } from "./routes/CheckinsRoutes";
 
 const app = express();
 
-app.use(cors());
+//app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', // ou a porta onde seu front está rodando
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type'],
+}));
+
+
+
 app.use(express.json()); // Middleware para analisar JSON
 app.use(express.urlencoded({ extended: true }));
 
