@@ -4,12 +4,14 @@ interface Usuario {
   id_usuarios: number;
   nome: string;
   email: string;
+  senha: string;
 }
 
 const Usuarios: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const fetchUsuarios = async () => {
@@ -31,7 +33,7 @@ const Usuarios: React.FC = () => {
   }, []);
 
   const handleCreateOrUpdate = async () => {
-    const userData = { nome, email };
+    const userData = { nome, email, senha };
     try {
       if (editingId === null) {
         // Create
@@ -63,6 +65,7 @@ const Usuarios: React.FC = () => {
     setEditingId(usuario.id_usuarios);
     setNome(usuario.nome);
     setEmail(usuario.email);
+    setSenha(usuario.senha);
   };
 
   const handleDelete = async (id: number) => {
@@ -95,6 +98,13 @@ const Usuarios: React.FC = () => {
           onChange={(e) => setEmail(e.target.value)}
           style={{ marginRight: '1rem' }}
         />
+        <input
+          type="senha"
+          placeholder="Senha"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+          style={{ marginRight: '1rem' }}
+        />
         <button onClick={handleCreateOrUpdate}>
           {editingId === null ? 'Criar' : 'Atualizar'}
         </button>
@@ -114,6 +124,7 @@ const Usuarios: React.FC = () => {
             <th>ID</th>
             <th>Nome</th>
             <th>Email</th>
+            {/* <th>Senha</th> */}
             <th>Ações</th>
           </tr>
         </thead>
@@ -123,6 +134,7 @@ const Usuarios: React.FC = () => {
               <td>{usuario.id_usuarios}</td>
               <td>{usuario.nome}</td>
               <td>{usuario.email}</td>
+              {/* <td>{usuario.senha}</td> */}
               <td>
                 <button onClick={() => handleEdit(usuario)} style={{ marginRight: '0.5rem' }}>
                   Editar

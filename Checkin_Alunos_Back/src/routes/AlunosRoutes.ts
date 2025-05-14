@@ -1,4 +1,6 @@
-import { Router, Request, Response } from "express";
+import multer from 'multer';
+import { multerErrorHandler } from '../middleware/multerErrorHandler';
+import { Router, Request, Response, NextFunction } from "express";
 import { AlunosControllers } from "../controllers/AlunosControllers"; // Corrigindo a importação
 import { authenticate } from "../middleware/auth"; // Importando o middleware de autenticação
 import { languageMiddleware } from "../middleware/languageMiddleware"; // Importando o middleware de idioma
@@ -47,7 +49,6 @@ alunosRouter.delete("/:matricula", async (req: Request, res: Response) => {
 });
 
 // Rota para importar alunos de arquivo CSV
-import multer from 'multer';
 const upload = multer({ 
     dest: 'uploads/',
     fileFilter: (req, file, cb) => {
@@ -61,17 +62,15 @@ const upload = multer({
         }
     }
 });
-alunosRouter.post("/import", upload.single('file'), async (req: Request, res: Response) => {
+
+import { ErrorRequestHandler } from "express";
+
+
+alunosRouter.post("/import", upload.single('file'), async (req: Request, res: Response, next: NextFunction) => {
     try {
         await alunosControllers.importFromCsv(req, res);
     } catch (error: unknown) {
-        console.error('Erro na rota de importação:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-        res.status(500).json({
-            success: false,
-            error: errorMessage
-        });
+        next(error);
     }
 });
-
 export default alunosRouter;

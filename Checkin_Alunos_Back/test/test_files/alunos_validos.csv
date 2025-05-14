@@ -1,0 +1,3 @@
+MATRICULA,NOME,TELEFONE,EMAIL,RESP1,TELEFONE_RESP1,EMAIL_RESP1,RESP2,TELEFONE_RESP2,EMAIL_RESP2,USUARIO_ID
+12345,João Silva,11999999999,joao@email.com,Maria Silva,11988888888,maria@email.com,José Silva,11977777777,jose@email.com,1
+67890,Ana Souza,11977777777,ana@email.com,Carlos Souza,11966666666,carlos@email.com,Ana Paula,11955555555,ana.paula@email.com,1
